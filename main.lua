@@ -112,11 +112,10 @@ function UpdateBoulders()
   FallingBoulders = {}
 
   local map = MapData.map
-  for column=1,table.getn(map) do
-    for row=1,table.getn(map[column]) do
-    if(map[column][row] == "B") then
-    lovebird.print("---OK")
-
+  for row=1,table.getn(map) do
+    for column=1,table.getn(map[row]) do
+    if(map[row][column] == "B" and map[row + 1][column] == "E") then
+    lovebird.print("OK")
         local b = {}
         b.column = column
         b.row = row
@@ -128,13 +127,13 @@ end
 
 function DrawMap()
   local map = MapData.map
-  for column=1,table.getn(map) do
-    for row=1,table.getn(map[column]) do
+  for row=1,table.getn(map) do
+    for column=1,table.getn(map[row]) do
       love.graphics.draw(
           Tileset,
-          Tiles[map[column][row]].image,
-          MapData.tileSize * (row - 1),
-          MapData.tileSize * (column - 1)
+          Tiles[map[row][column]].image,
+          MapData.tileSize * (column - 1),
+          MapData.tileSize * (row - 1)
       )
     end
   end
