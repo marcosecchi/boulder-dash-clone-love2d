@@ -104,7 +104,9 @@ end
 FallingBoulders = {}
 
 function UpdateBoulders()
-  for k in pairs(FallingBoulders) do
+  for i, k in pairs(FallingBoulders) do
+    MapData.map[k.row][k.column] = "E"
+    MapData.map[k.row + 1][k.column] = "B"
 --    lovebird.print("OK")
       -- TODO: Update boulders
   end
@@ -115,7 +117,6 @@ function UpdateBoulders()
   for row=1,table.getn(map) do
     for column=1,table.getn(map[row]) do
     if(map[row][column] == "B" and map[row + 1][column] == "E") then
-    lovebird.print("OK")
         local b = {}
         b.column = column
         b.row = row
