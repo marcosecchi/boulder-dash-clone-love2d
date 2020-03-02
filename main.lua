@@ -3,7 +3,7 @@ lovebird = require("lovebird")
 function love.load(arg)
   WallSound = love.audio.newSource("assets/audio/wall.wav", "static")
   StepSound = love.audio.newSource("assets/audio/step.wav", "static")
-  Font = love.graphics.newFont("assets/fonts/CommodorePixelized.ttf", 30)
+  Font = love.graphics.newFont("assets/fonts/CommodorePixelized.ttf", 24)
   Tileset = love.graphics.newImage("assets/images/spritesheet_32x32.png")
 
   MapData = assert(love.filesystem.load( "map_data.lua"))()
@@ -107,8 +107,10 @@ function UpdateBoulders()
   for i, k in pairs(FallingBoulders) do
     MapData.map[k.row][k.column] = "E"
     MapData.map[k.row + 1][k.column] = "B"
---    lovebird.print("OK")
-      -- TODO: Update boulders
+    lovebird.print(Player.posY .. " " .. k.row)
+    if(Player.posX == k.column and Player.posY == k.row + 1) then
+      Game.status = "game over"
+    end
   end
 
   FallingBoulders = {}
@@ -141,21 +143,21 @@ function DrawMap()
 end
 
 function DrawStartScreen()
-  love.graphics.setColor(0, 0, 0, 200)
+  love.graphics.setColor(0.09, 0.11, 0.09, 1)
   love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
-  love.graphics.setColor(162, 203, 57, 255)
+  love.graphics.setColor(0.84, 0.61, 0.22, 1)
   love.graphics.setFont(Font)
-  love.graphics.printf("PRESS 'SPACEBAR' TO START", 20, 100, love.graphics.getWidth() - 20, "center")
+  love.graphics.printf("Press SPACEBAR to Start", 20, 130, love.graphics.getWidth() - 20, "center")
   love.graphics.setColor(255, 255, 255, 255)
 end
 
 function DrawEndScreen()
-  love.graphics.setColor(0, 0, 0, 200)
+  love.graphics.setColor(0.09, 0.11, 0.09, 1)
   love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
   love.graphics.setColor(162, 203, 57, 255)
   love.graphics.setFont(Font)
-  love.graphics.printf("YOU WIN!\n\nPRESS 'SPACEBAR' TO REPLAY", 20, 60, love.graphics.getWidth() - 20, "center")
+  love.graphics.printf("Crushed by a Boulder!\n\nPress 'SPACEBAR' to Replay", 20, 100, love.graphics.getWidth() - 20, "center")
   love.graphics.setColor(255, 255, 255, 255)
 end
