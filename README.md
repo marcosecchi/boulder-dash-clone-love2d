@@ -9,6 +9,13 @@ L'idea è di dare un contributo concreto alle nuove generazioni, mostrando loro 
 
 ![Work in Progress](https://github.com/marcosecchi/boulder-dash-clone-love2d/blob/master/docs/images/wip_01.png)
 
+### Istruzioni
+
+* Scaricare l'ultima release del gioco e decomprimere il file
+* Doppio click su _BoulderDash.love_ per lanciare il gioco
+
+_Nota: è necessario avere installato LÖVE sul proprio PC/Mac_
+
 ### Credits
 
 * C64 Font: [Devin Cook](https://www.dafont.com/commodore-64-pixelized.font)
