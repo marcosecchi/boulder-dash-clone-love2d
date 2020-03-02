@@ -14,7 +14,7 @@ L'idea è di dare un contributo concreto alle nuove generazioni, mostrando loro 
 * Scaricare [l'ultima release del gioco](https://github.com/marcosecchi/boulder-dash-clone-love2d/releases) e decomprimere il file _.zip_
 * Doppio click su _BoulderDash.love_ per lanciare il gioco
 
-_Nota: è necessario avere installato LÖVE sul proprio PC/Mac_
+_Nota: è necessario avere installato LÖVE sul proprio PC/Mac._
 
 ### Credits
 
