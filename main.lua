@@ -1,12 +1,24 @@
+-- Importo la libreria di debug
 lovebird = require("lovebird")
 
+-- Tabella contenente le informazioni dei macigni "sospesi"
+-- che dovranno cadere
+FallingBoulders = {}
+
+-- Tabella contenente le informazioni del giocatore
+Player = {}
+
+-- Tabella contenente informazioni generali del gioco (es.: stato, etc.)
+Game = {}
+
+-- Funzione di callback chiamata dall'engine all'inizio del gioco
 function love.load(arg)
   WallSound = love.audio.newSource("assets/audio/wall.wav", "static")
   StepSound = love.audio.newSource("assets/audio/step.wav", "static")
   Font = love.graphics.newFont("assets/fonts/CommodorePixelized.ttf", 24)
   Tileset = love.graphics.newImage("assets/images/spritesheet_32x32.png")
 
-  MapData = assert(love.filesystem.load( "map_data.lua"))()
+  ResetGame()
 
   Tiles = {}
   for i=1,table.getn(MapData.tilesData) do
@@ -21,27 +33,30 @@ function love.load(arg)
     Tiles[tileData.key].type = tileData.type
   end
 
-  Player = {}
   Player.quad = love.graphics.newQuad(
                                 0,
                                 0,
                                 MapData.tileSize,
                                 MapData.tileSize,
                                 Tileset:getDimensions())
-  Player.posX = 2
-  Player.posY = 2
 
-  Game = {}
   Game.status = "start"
 end
 
+-- Funzione di callback chiamata dall'engine ad ogni frame
+-- Viene utilizzata per effettuare eventuali calcoli logici
 function love.update(dt)
   require("lovebird").update()
 end
 
+-- Funzione di callback chiamata dall'engine ogni volta che l'utente preme un tasto
 function love.keypressed(key, scancode, isrepeat)
+
+  -- Nel caso mi trovi nelle schermate di Start o Game Over
+  -- cambio lo stato se la barra spaziatrice è premuta
   if(Game.status ~= "play") then
     if(Game.status == "start" and key == "space") then
+      ResetGame()
       Game.status = "play"
     elseif (Game.status == "game over" and key == "space") then
       Game.status = "start"
@@ -76,14 +91,11 @@ function love.keypressed(key, scancode, isrepeat)
     WallSound:play()
   end
 
-  -- TODO: Game Over
-  --if(...) then
-  --Game.status = "game over"
-  --end
-
   UpdateBoulders()
 end
 
+-- Funzione di callback chiamata dall'engine ad ogni frame
+-- Viene utilizzata per 'disegnare' sullo schermo
 function love.draw()
   DrawMap()
 
@@ -100,8 +112,6 @@ function love.draw()
     DrawEndScreen()
   end
 end
-
-FallingBoulders = {}
 
 function UpdateBoulders()
   for i, k in pairs(FallingBoulders) do
@@ -140,6 +150,12 @@ function DrawMap()
       )
     end
   end
+end
+
+function ResetGame()
+  MapData = assert(love.filesystem.load( "map_data.lua"))()
+  Player.posX = 2
+  Player.posY = 2
 end
 
 function DrawStartScreen()
