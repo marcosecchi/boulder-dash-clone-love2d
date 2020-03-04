@@ -17,8 +17,8 @@ Tiles = {}
 -- Funzione di callback chiamata dall'engine all'inizio del gioco
 function love.load(arg)
   -- carica gli asset allinterno di variabili globali
-  WallSound = love.audio.newSource("assets/audio/wall.wav", "static")
   StepSound = love.audio.newSource("assets/audio/step.wav", "static")
+  DeadSound = love.audio.newSource("assets/audio/dead.wav", "static")
   Font = love.graphics.newFont("assets/fonts/CommodorePixelized.ttf", 24)
   Tileset = love.graphics.newImage("assets/images/spritesheet_32x32.png")
 
@@ -87,7 +87,7 @@ function love.keypressed(key, scancode, isrepeat)
     Player.posY = nextPosY
     StepSound:play()
   else
-    WallSound:play()
+    -- Fermo, ha colpito il muro
   end
 
   -- Aggiorno la posizione dei massi che devono cadere
@@ -99,20 +99,14 @@ end
 -- Funzione di callback chiamata dall'engine ad ogni frame
 -- Viene utilizzata per 'disegnare' sullo schermo
 function love.draw()
-  -- Ridisegno la mappa
-  DrawMap()
-
-  love.graphics.draw(
-    Tileset,
-    Player.quad,
-    MapData.tileSize * Player.posX - MapData.tileSize,
-    MapData.tileSize * Player.posY - MapData.tileSize
-  )
-
   if(Game.status == "start") then
     DrawStartScreen()
   elseif(Game.status == "game over") then
     DrawEndScreen()
+  else
+  -- Ridisegno la mappa
+    DrawMap()
+    DrawPlayer()
   end
 end
 
@@ -121,6 +115,7 @@ function UpdateBoulders()
     MapData.map[k.row][k.column] = "E"
     MapData.map[k.row + 1][k.column] = "B"
     if(Player.posX == k.column and Player.posY == k.row + 1) then
+      DeadSound:play()
       Game.status = "game over"
     end
   end
@@ -138,6 +133,15 @@ function UpdateBoulders()
       end
     end
   end
+end
+
+function DrawPlayer()
+  love.graphics.draw(
+    Tileset,
+    Player.quad,
+    MapData.tileSize * Player.posX - MapData.tileSize,
+    MapData.tileSize * Player.posY - MapData.tileSize
+  )
 end
 
 function DrawMap()
