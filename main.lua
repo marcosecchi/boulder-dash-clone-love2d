@@ -11,41 +11,32 @@ Player = {}
 -- Tabella contenente informazioni generali del gioco (es.: stato, etc.)
 Game = {}
 
+-- Tabella contenente le informazioni delle tile che andranno a comporre la mappa
+Tiles = {}
+
 -- Funzione di callback chiamata dall'engine all'inizio del gioco
 function love.load(arg)
+  -- carica gli asset allinterno di variabili globali
   WallSound = love.audio.newSource("assets/audio/wall.wav", "static")
   StepSound = love.audio.newSource("assets/audio/step.wav", "static")
   Font = love.graphics.newFont("assets/fonts/CommodorePixelized.ttf", 24)
   Tileset = love.graphics.newImage("assets/images/spritesheet_32x32.png")
 
+  -- Inizializza tutte le informazioni del gioco
   ResetGame()
+  InitTiles()
+  InitPlayer()
 
-  Tiles = {}
-  for i=1,table.getn(MapData.tilesData) do
-    local tileData = MapData.tilesData[i]
-    Tiles[tileData.key] = {}
-    Tiles[tileData.key].image = love.graphics.newQuad(
-                              tileData.posX * MapData.tileSize,
-                              tileData.posY * MapData.tileSize,
-                              MapData.tileSize,
-                              MapData.tileSize,
-                              Tileset:getDimensions())
-    Tiles[tileData.key].type = tileData.type
-  end
-
-  Player.quad = love.graphics.newQuad(
-                                0,
-                                0,
-                                MapData.tileSize,
-                                MapData.tileSize,
-                                Tileset:getDimensions())
-
+  -- Definisce lo stato del gioco, in modo tale che
+  -- al prossimo redraw venga visualizzata la schermata
+  -- di inizio gioco
   Game.status = "start"
 end
 
 -- Funzione di callback chiamata dall'engine ad ogni frame
 -- Viene utilizzata per effettuare eventuali calcoli logici
 function love.update(dt)
+  -- Aggiorna la finestra di debug con i nuovi messaggi racciati
   require("lovebird").update()
 end
 
@@ -65,23 +56,31 @@ function love.keypressed(key, scancode, isrepeat)
     end
   end
 
+  -- Calcolo la posizione dove andrà a trovarsi il giocatore
+
+  -- Definisco le variabili per la nuova posizione del giocatore
   local nextPosX = Player.posX
   local nextPosY = Player.posY
 
+  -- Calcolo il possibile movimento verticale del giocatore
   if(key == "up") then
     nextPosY = nextPosY - 1
   elseif (key == "down") then
     nextPosY = nextPosY + 1
   end
 
+  -- Calcolo il possibile movimento orizzontale del giocatore
   if(key == "right") then
     nextPosX = nextPosX + 1
   elseif (key == "left") then
     nextPosX = nextPosX - 1
   end
 
+  -- Trovo il tipo di tile dove andrà a posizionarsi il giocatore
   local nextTile = MapData.map[nextPosY][nextPosX]
---  lovebird.print(nextTile)
+
+  -- Se è possibile muoversi (terreno vuoto o scavabile) aggiorno la posizione
+  -- del giocatore, emettendo i suoni corrispondenti
   if(Tiles[nextTile].type == "diggable" or Tiles[nextTile].type == "empty") then
     MapData.map[Player.posY][Player.posX] = "E"
     Player.posX = nextPosX
@@ -91,12 +90,16 @@ function love.keypressed(key, scancode, isrepeat)
     WallSound:play()
   end
 
+  -- Aggiorno la posizione dei massi che devono cadere
+  -- Essendo messo in questa posizione, la logica è "turn-based",
+  -- cioè aggiorno i massi solo quando il giocatore muove
   UpdateBoulders()
 end
 
 -- Funzione di callback chiamata dall'engine ad ogni frame
 -- Viene utilizzata per 'disegnare' sullo schermo
 function love.draw()
+  -- Ridisegno la mappa
   DrawMap()
 
   love.graphics.draw(
@@ -117,7 +120,6 @@ function UpdateBoulders()
   for i, k in pairs(FallingBoulders) do
     MapData.map[k.row][k.column] = "E"
     MapData.map[k.row + 1][k.column] = "B"
-    lovebird.print(Player.posY .. " " .. k.row)
     if(Player.posX == k.column and Player.posY == k.row + 1) then
       Game.status = "game over"
     end
@@ -156,6 +158,32 @@ function ResetGame()
   MapData = assert(love.filesystem.load( "map_data.lua"))()
   Player.posX = 2
   Player.posY = 2
+end
+
+-- Inizializza le informazioni di ogni tile che andrà a comporre la mappa
+function InitTiles()
+  for i=1,table.getn(MapData.tilesData) do
+    local tileData = MapData.tilesData[i]
+    Tiles[tileData.key] = {}
+    Tiles[tileData.key].image = love.graphics.newQuad(
+                              tileData.posX * MapData.tileSize,
+                              tileData.posY * MapData.tileSize,
+                              MapData.tileSize,
+                              MapData.tileSize,
+                              Tileset:getDimensions())
+    Tiles[tileData.key].type = tileData.type
+  end
+end
+
+-- Inizializza le informazioni del giocatore
+function InitPlayer()
+  -- crea l'area da ritagliare dallo spritesheet
+  Player.quad = love.graphics.newQuad(
+                                0,
+                                0,
+                                MapData.tileSize,
+                                MapData.tileSize,
+                                Tileset:getDimensions())
 end
 
 function DrawStartScreen()
